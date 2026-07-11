@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <!-- .NET Aspire orchestration -->
+    <PackageVersion Include="Aspire.Hosting.AppHost" Version="8.2.2" />
     <PackageVersion Include="Aspire.Hosting" Version="8.2.2" />
     <PackageVersion Include="Aspire.Hosting.PostgreSQL" Version="8.2.2" />
     <PackageVersion Include="Aspire.Hosting.Redis" Version="8.2.2" />

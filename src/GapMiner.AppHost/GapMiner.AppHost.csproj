@@ -12,8 +12,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- Aspire hosting model + PostgreSQL/Redis resource hosting extensions. -->
-    <PackageReference Include="Aspire.Hosting" />
+    <!-- Aspire AppHost SDK requires Aspire.Hosting.AppHost (≥8.2.0).
+         Aspire.Hosting / .PostgreSQL / .Redis provide the hosting model and
+         PostgreSQL/Redis resource extensions. -->
+    <PackageReference Include="Aspire.Hosting.AppHost" />
     <PackageReference Include="Aspire.Hosting.PostgreSQL" />
     <PackageReference Include="Aspire.Hosting.Redis" />
   </ItemGroup>
