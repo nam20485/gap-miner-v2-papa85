@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json.schemastore.org/slnf",
+  "solution": {
+    "path": "GapMiner.sln",
+    "projects": [
+      "src/GapMiner.ServiceDefaults/GapMiner.ServiceDefaults.csproj",
+      "src/GapMiner.Domain/GapMiner.Domain.csproj",
+      "src/GapMiner.Infrastructure/GapMiner.Infrastructure.csproj",
+      "src/GapMiner.Application/GapMiner.Application.csproj",
+      "src/GapMiner.Api/GapMiner.Api.csproj",
+      "src/GapMiner.ScraperWorker/GapMiner.ScraperWorker.csproj",
+      "src/GapMiner.AIWorker/GapMiner.AIWorker.csproj",
+      "src/GapMiner.Web/GapMiner.Web.csproj",
+      "tests/GapMiner.Domain.Tests/GapMiner.Domain.Tests.csproj",
+      "tests/GapMiner.Infrastructure.Tests/GapMiner.Infrastructure.Tests.csproj",
+      "tests/GapMiner.Application.Tests/GapMiner.Application.Tests.csproj",
+      "tests/GapMiner.Api.Tests/GapMiner.Api.Tests.csproj",
+      "tests/GapMiner.Integration.Tests/GapMiner.Integration.Tests.csproj"
+    ]
+  }
+}
