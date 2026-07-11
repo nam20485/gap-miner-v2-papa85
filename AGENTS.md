@@ -1,3 +1,110 @@
+# AGENTS.md — GapMiner Project Guide
+
+> This file provides AI coding agents with project-specific context for the **Gap Mining Platform**.
+> The orchestration system instructions follow in the second half of this file.
+
+---
+
+## Project Overview
+
+The **Gap Mining Platform (GapMiner)** is an internal intelligence engine that scrapes 1-to-3-star reviews of competitor apps from digital marketplaces (Shopify App Store, Chrome Web Store, G2, Apple App Store), clusters them using LLMs with pgvector semantic similarity, and surfaces ranked, monetizable feature gap opportunities via an internal Blazor dashboard.
+
+**Key principle:** The platform does NOT build, ship, or monetize micro-SaaS applications. It identifies actionable opportunities.
+
+## Setup Commands
+
+- **Install .NET SDK 8.0.x**: Required — global.json pins to 8.0.x with `rollForward: latestFeature`
+- **Restore packages**: `dotnet restore GapMiner.sln`
+- **Build**: `dotnet build GapMiner.sln` (or `dotnet build GapMiner.ci.slnf` for CI without AppHost)
+- **Run**: `dotnet run --project src/GapMiner.AppHost` (launches Aspire dashboard)
+- **Run tests**: `dotnet test GapMiner.sln`
+- **Run single test**: `dotnet test --filter "FullyQualifiedName~SpecificTestName"`
+- **Docker**: `docker-compose up -d` (PostgreSQL 16 + pgvector, Redis 7)
+- **EF migrations**: `dotnet ef migrations add <Name> --project src/GapMiner.Infrastructure --startup-project src/GapMiner.Api`
+
+## Project Structure
+
+```
+GapMiner/
+├── GapMiner.sln                    # Solution file (14 projects)
+├── GapMiner.ci.slnf                # CI solution filter (excludes AppHost)
+├── global.json                     # .NET SDK 8.0.x pin
+├── Directory.Packages.props        # Central Package Management
+├── Directory.Build.props           # Shared MSBuild properties
+├── .editorconfig                   # Code style rules
+│
+├── src/
+│   ├── GapMiner.AppHost/           # Aspire orchestrator (PostgreSQL, Redis, workers)
+│   ├── GapMiner.ServiceDefaults/   # OpenTelemetry, health checks, service defaults
+│   ├── GapMiner.Domain/            # Pure domain entities (no EF refs): CompetitorTarget, Review, FeatureGap
+│   ├── GapMiner.Infrastructure/    # EF Core, Redis, Apify client, Semantic Kernel
+│   ├── GapMiner.Application/       # Use cases / command handlers (CQRS-like)
+│   ├── GapMiner.Api/               # Minimal API gateway (ASP.NET Core 8)
+│   ├── GapMiner.ScraperWorker/     # Background worker: review scraping
+│   ├── GapMiner.AIWorker/          # Background worker: LLM embedding & analysis
+│   └── GapMiner.Web/               # Blazor dashboard (Interactive Server)
+│
+├── tests/
+│   ├── GapMiner.Domain.Tests/
+│   ├── GapMiner.Infrastructure.Tests/
+│   ├── GapMiner.Application.Tests/
+│   ├── GapMiner.Api.Tests/
+│   └── GapMiner.Integration.Tests/ # E2E with Testcontainers
+│
+├── plan_docs/                      # Application planning documents
+├── docs/                           # Developer documentation + ADRs
+└── .github/workflows/              # CI/CD (ci.yml, validate.yml)
+```
+
+## Code Style
+
+- **Language**: C# 12, .NET 8.0 LTS
+- **TreatWarningsAsErrors**: `true` (enforced in Directory.Build.props)
+- **Nullable reference types**: Enabled
+- **Implicit usings**: Enabled
+- **File-scoped namespaces**: Required (enforced in .editorconfig)
+- **Indentation**: 4 spaces, CRLF line endings
+- **Naming**: PascalCase for classes/methods, `I{Name}` for interfaces, kebab-case for API routes, snake_case for DB columns
+- **Records for DTOs**, classes for EF entities, interfaces for service contracts
+- **XML doc comments** required on all public methods
+- **Async I/O**: Must use `CancellationToken` propagation
+
+## Testing Instructions
+
+- **Framework**: xUnit + NSubstitute + Testcontainers
+- **Coverage target**: 80%+ for Application and Infrastructure layers
+- **Test naming**: `{MethodName}_{Scenario}_{ExpectedResult}`
+- **Integration tests**: Use Testcontainers for PostgreSQL + Redis (real containers, no mocks for DB)
+- **Always add or update tests** for changed code
+
+## Architecture Notes
+
+- **Pattern**: Clean Architecture — Domain → Infrastructure → Application → (Api, Workers, Web)
+- **Orchestration**: .NET Aspire 8.2 manages PostgreSQL (with pgvector), Redis, and all worker services
+- **Data flow**: Scrape → Ingest → Embed → Cluster (pgvector KNN) → Analyze (Map-Reduce LLM) → Surface (Blazor)
+- **AI**: Microsoft.SemanticKernel 1.20 for LLM orchestration (Azure OpenAI GPT-4o or Anthropic Claude)
+- **Queue**: Redis-based job queue with Hangfire scheduling
+- **Idempotency**: Unique composite indexes + ON CONFLICT DO NOTHING for review ingestion
+
+## PR and Commit Guidelines
+
+- **Commit format**: Conventional Commits — `feat(scope): description`, `fix(scope): description`, `docs(scope): description`
+- **Branch naming**: `feature/{task-id}-{description}`, `fix/{issue-number}-{description}`
+- **Required before PR**: `dotnet build` succeeds (zero warnings), `dotnet test` passes, StyleCop + SonarAnalyzer clean
+- **PR description**: Must include task ID, summary of changes, test evidence
+
+## Common Pitfalls
+
+- **.NET SDK version**: Devcontainer has SDK 10 but project targets SDK 8. `global.json` pins to 8.0.x — if `dotnet` commands fail, check SDK version with `dotnet --version`
+- **Aspire SDK**: The AppHost project requires `Aspire.AppHost.Sdk` workload — may need `dotnet workload install aspire` (installs 9.x on hosted runners)
+- **pgvector**: PostgreSQL container uses `pgvector/pgvector:pg16` image — standard `postgres:16` will fail EF migrations
+- **EF migrations**: Must include `HasPostgresExtension("vector")` in DbContext for pgvector
+- **Secrets**: NEVER hardcode API keys — use `IConfiguration` or environment variables. Serilog MUST scrub `*Password*`, `*Token*`, `*Key*` properties
+
+---
+
+<!-- Orchestration System Instructions Below -->
+
 ---
 file: AGENTS.md
 description: Project instructions for coding agents
