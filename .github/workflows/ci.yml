@@ -37,6 +37,10 @@ jobs:
         with:
           dotnet-version: "8.0.x"
 
+      - name: Install .NET workloads
+        # The Aspire AppHost (Aspire.AppHost.Sdk) is distributed as a workload.
+        run: dotnet workload install aspire
+
       - name: Restore dependencies
         run: dotnet restore GapMiner.sln
 
