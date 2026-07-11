@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <Sdk Name="Aspire.AppHost.Sdk" Version="8.2.2" />
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace>GapMiner.AppHost</RootNamespace>
+    <IsAspireHost>true</IsAspireHost>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>e3a1f9c2-7b4d-4a8e-9c1f-2d5b8e7a6c01</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Aspire hosting model + PostgreSQL/Redis resource hosting extensions. -->
+    <PackageReference Include="Aspire.Hosting" />
+    <PackageReference Include="Aspire.Hosting.PostgreSQL" />
+    <PackageReference Include="Aspire.Hosting.Redis" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Projects orchestrated by this AppHost. The Aspire.AppHost.Sdk source
+         generator emits the Projects.* types referenced from Program.cs. -->
+    <ProjectReference Include="..\GapMiner.Api\GapMiner.Api.csproj" />
+    <ProjectReference Include="..\GapMiner.ScraperWorker\GapMiner.ScraperWorker.csproj" />
+    <ProjectReference Include="..\GapMiner.AIWorker\GapMiner.AIWorker.csproj" />
+    <ProjectReference Include="..\GapMiner.Web\GapMiner.Web.csproj" />
+  </ItemGroup>
+
+</Project>

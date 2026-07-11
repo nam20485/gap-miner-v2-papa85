@@ -1,0 +1,47 @@
+name: ci
+
+on:
+  push:
+    branches: [main, "dynamic-workflow-project-setup"]
+    paths:
+      - "src/**"
+      - "tests/**"
+      - "Directory.Packages.props"
+      - "Directory.Build.props"
+      - "global.json"
+      - "GapMiner.sln"
+      - ".github/workflows/ci.yml"
+  pull_request:
+    paths:
+      - "src/**"
+      - "tests/**"
+      - "Directory.Packages.props"
+      - "Directory.Build.props"
+      - "global.json"
+      - "GapMiner.sln"
+      - ".github/workflows/ci.yml"
+  workflow_dispatch:
+
+# Pin every action by full 40-char SHA (supply-chain hardening, per AGENTS.md).
+# Versions resolved via: gh api repos/<owner>/<repo>/git/ref/tags/<tag>
+jobs:
+  build:
+    name: build-and-test
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@26b0ec14cb23fa6901f986b229655d2cb7d24bf1 # v5.4.0
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Restore dependencies
+        run: dotnet restore GapMiner.sln
+
+      - name: Build solution
+        run: dotnet build GapMiner.sln --configuration Release --no-restore
+
+      - name: Run tests
+        run: dotnet test GapMiner.sln --configuration Release --no-build --verbosity normal

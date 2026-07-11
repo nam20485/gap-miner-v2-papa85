@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace>GapMiner.Domain</RootNamespace>
+  </PropertyGroup>
+
+  <!--
+    Pure domain layer: entities, value objects, and enums.
+    No EF Core references here (no persistence concerns leak in).
+  -->
+
+</Project>

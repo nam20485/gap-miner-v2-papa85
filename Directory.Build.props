@@ -1,0 +1,18 @@
+<Project>
+  <!--
+    Shared MSBuild properties for every project in the GapMiner solution.
+    Individual .csproj files set OutputType, TargetFramework, and references.
+  -->
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <NeutralLanguage>en</NeutralLanguage>
+    <Product>GapMiner</Product>
+    <Authors>GapMiner</Authors>
+    <Copyright>Copyright (c) GapMiner. All rights reserved.</Copyright>
+  </PropertyGroup>
+</Project>

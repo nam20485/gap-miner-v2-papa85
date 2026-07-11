@@ -1,0 +1,2 @@
+# Placeholder so the Persistence/ directory is tracked by git.
+# EF Core DbContext, configurations, migrations, and repositories arrive in T-1.2/T-1.3.
