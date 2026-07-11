@@ -1,0 +1,56 @@
+# .dockerignore — exclude files not needed in the Docker build context to keep
+# image builds fast and avoid copying local build artifacts / secrets.
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# CI / orchestrator infrastructure (not part of the GapMiner app build)
+.github/
+.factory/
+.copilot/
+.kilocode/
+.qwen/
+.vscode/
+.opencode/
+.agents/
+agents.md
+**/AGENTS.md
+local_ai_instruction_modules/
+plan_docs/
+*.code-workspace
+
+# Documentation
+docs/
+*.md
+!README.md
+
+# Docker
+Dockerfile
+.dockerignore
+docker-compose.yml
+docker-compose.*.yml
+
+# Local env / secrets (never bake into images)
+.env
+.env.*
+!.env.example
+
+# Build outputs
+**/bin/
+**/obj/
+**/out/
+**/publish/
+
+# IDE / editor
+*.user
+*.suo
+.vs/
+.idea/
+*.swp
+
+# Test results
+test-results/
+TestResults/
+**/*.trx

@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace>GapMiner.AIWorker</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- ASP.NET Core shared framework provides Microsoft.Extensions.Hosting
+         (IHostApplicationBuilder / Host.CreateApplicationBuilder) for the worker. -->
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\GapMiner.Application\GapMiner.Application.csproj" />
+    <ProjectReference Include="..\GapMiner.Infrastructure\GapMiner.Infrastructure.csproj" />
+    <ProjectReference Include="..\GapMiner.Domain\GapMiner.Domain.csproj" />
+    <ProjectReference Include="..\GapMiner.ServiceDefaults\GapMiner.ServiceDefaults.csproj" />
+  </ItemGroup>
+
+</Project>

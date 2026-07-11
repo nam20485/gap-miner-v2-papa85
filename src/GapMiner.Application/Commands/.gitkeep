@@ -1,0 +1,2 @@
+# Placeholder so the Commands/ directory is tracked by git.
+# Command handlers (IngestTarget, RunScraper, AnalyzeReviews) arrive in later phases.

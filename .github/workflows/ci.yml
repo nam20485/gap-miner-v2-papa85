@@ -1,0 +1,55 @@
+name: ci
+
+on:
+  push:
+    branches: [main, "dynamic-workflow-project-setup"]
+    paths:
+      - "src/**"
+      - "tests/**"
+      - "Directory.Packages.props"
+      - "Directory.Build.props"
+      - "global.json"
+      - "GapMiner.sln"
+      - ".github/workflows/ci.yml"
+  pull_request:
+    paths:
+      - "src/**"
+      - "tests/**"
+      - "Directory.Packages.props"
+      - "Directory.Build.props"
+      - "global.json"
+      - "GapMiner.sln"
+      - ".github/workflows/ci.yml"
+  workflow_dispatch:
+
+# Pin every action by full 40-char SHA (supply-chain hardening, per AGENTS.md).
+# Versions resolved via: gh api repos/<owner>/<repo>/git/ref/tags/<tag>
+jobs:
+  build:
+    name: build-and-test
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5.4.0
+        with:
+          dotnet-version: "8.0.x"
+
+      # NOTE: The Aspire AppHost (src/GapMiner.AppHost) requires the `aspire`
+      # .NET workload, and Aspire.AppHost.Sdk 8.2.2 is workload-only (NuGet only
+      # ships 9.x+). It cannot be reliably pinned to 8.2.2 on hosted runners, so
+      # CI builds/tests all 13 application & test projects via a solution filter
+      # (GapMiner.ci.slnf). The AppHost remains in GapMiner.sln and is validated
+      # by running it locally per development-plan T-0.2:
+      #   dotnet workload install aspire
+      #   dotnet run --project src/GapMiner.AppHost
+      - name: Restore dependencies
+        run: dotnet restore GapMiner.ci.slnf
+
+      - name: Build solution
+        run: dotnet build GapMiner.ci.slnf --configuration Release --no-restore
+
+      - name: Run tests
+        run: dotnet test GapMiner.ci.slnf --configuration Release --no-build --verbosity normal

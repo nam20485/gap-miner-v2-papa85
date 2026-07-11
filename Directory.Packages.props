@@ -1,0 +1,45 @@
+<Project>
+  <!--
+    Central Package Management for the GapMiner solution.
+    All package versions are declared here; individual projects use
+    <PackageReference Include="..." /> WITHOUT a Version attribute.
+    Versions are sourced verbatim from the development plan (§3 Tech Stack).
+  -->
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- .NET Aspire orchestration -->
+    <PackageVersion Include="Aspire.Hosting.AppHost" Version="8.2.2" />
+    <PackageVersion Include="Aspire.Hosting" Version="8.2.2" />
+    <PackageVersion Include="Aspire.Hosting.PostgreSQL" Version="8.2.2" />
+    <PackageVersion Include="Aspire.Hosting.Redis" Version="8.2.2" />
+
+    <!-- AI orchestration -->
+    <PackageVersion Include="Microsoft.SemanticKernel" Version="1.20.0" />
+
+    <!-- Data access -->
+    <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.10" />
+    <PackageVersion Include="Pgvector.EntityFrameworkCore" Version="0.2.0" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="8.0.10" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.10" />
+
+    <!-- Caching / queueing -->
+    <PackageVersion Include="StackExchange.Redis" Version="2.8.0" />
+    <PackageVersion Include="Hangfire.Core" Version="1.8.14" />
+
+    <!-- HTTP client / validation -->
+    <PackageVersion Include="Refit.HttpClientFactory" Version="7.2.1" />
+    <PackageVersion Include="FluentValidation" Version="11.10.0" />
+
+    <!-- Testing -->
+    <PackageVersion Include="xunit" Version="2.9.0" />
+    <PackageVersion Include="xunit.runner.visualstudio" Version="2.8.2" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.7.0" />
+    <PackageVersion Include="NSubstitute" Version="5.1.0" />
+    <PackageVersion Include="Testcontainers.PostgreSql" Version="3.10.0" />
+    <PackageVersion Include="Testcontainers.Redis" Version="3.10.0" />
+  </ItemGroup>
+</Project>

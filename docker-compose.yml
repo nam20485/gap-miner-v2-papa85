@@ -1,0 +1,123 @@
+# docker-compose.yml — local development + integration environment for GapMiner.
+#
+# Brings up PostgreSQL 16 (with pgvector) and Redis 7, plus the application
+# services. Copy .env.example to .env and fill in API keys before running:
+#
+#   cp .env.example .env
+#   docker compose up --build
+#
+# In development prefer the Aspire AppHost (`dotnet run --project src/GapMiner.AppHost`)
+# which orchestrates these dependencies automatically. This compose file is the
+# canonical environment for CI and standalone deployments.
+
+services:
+  # --- Infrastructure --------------------------------------------------------
+
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: gapminer-postgres
+    environment:
+      POSTGRES_USER: gapminer
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-gapminer_dev}
+      POSTGRES_DB: gapminer
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U gapminer -d gapminer"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: gapminer-redis
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # --- Application services --------------------------------------------------
+  # Each service reuses the root Dockerfile with a different PROJECT build arg.
+  # API keys / tokens are injected from the environment (.env file).
+
+  api:
+    build:
+      context: .
+      args:
+        PROJECT: GapMiner.Api
+    container_name: gapminer-api
+    environment:
+      ConnectionStrings__gapminer: Host=postgres;Port=5432;Database=gapminer;Username=gapminer;Password=${POSTGRES_PASSWORD:-gapminer_dev}
+      ConnectionStrings__redis: redis:6379
+      Apify__Token: ${APIFY_TOKEN:-}
+      AI__Provider: ${AI_PROVIDER:-azureopenai}
+      AI__AzureOpenAI__Endpoint: ${AZURE_OPENAI_ENDPOINT:-}
+      AI__AzureOpenAI__ApiKey: ${AZURE_OPENAI_API_KEY:-}
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  web:
+    build:
+      context: .
+      args:
+        PROJECT: GapMiner.Web
+    container_name: gapminer-web
+    environment:
+      ConnectionStrings__gapminer: Host=postgres;Port=5432;Database=gapminer;Username=gapminer;Password=${POSTGRES_PASSWORD:-gapminer_dev}
+      ConnectionStrings__redis: redis:6379
+      Services__api: http://api:8080
+    ports:
+      - "8081:8080"
+    depends_on:
+      - api
+
+  scraper-worker:
+    build:
+      context: .
+      args:
+        PROJECT: GapMiner.ScraperWorker
+    container_name: gapminer-scraper-worker
+    environment:
+      ConnectionStrings__gapminer: Host=postgres;Port=5432;Database=gapminer;Username=gapminer;Password=${POSTGRES_PASSWORD:-gapminer_dev}
+      ConnectionStrings__redis: redis:6379
+      Apify__Token: ${APIFY_TOKEN:-}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  ai-worker:
+    build:
+      context: .
+      args:
+        PROJECT: GapMiner.AIWorker
+    container_name: gapminer-ai-worker
+    environment:
+      ConnectionStrings__gapminer: Host=postgres;Port=5432;Database=gapminer;Username=gapminer;Password=${POSTGRES_PASSWORD:-gapminer_dev}
+      ConnectionStrings__redis: redis:6379
+      AI__Provider: ${AI_PROVIDER:-azureopenai}
+      AI__AzureOpenAI__Endpoint: ${AZURE_OPENAI_ENDPOINT:-}
+      AI__AzureOpenAI__ApiKey: ${AZURE_OPENAI_API_KEY:-}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+volumes:
+  postgres-data:
+  redis-data:
